@@ -2,31 +2,30 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Assets.SQLite.Scripts.Attribute;
+using Assets.SQLite.Scripts.Base;
 using Assets.SQLite.Scripts.Model;
-using Assets.SQLite.Scripts.Singleton;
 using Mono.Data.Sqlite;
 using UnityEngine;
 
 namespace Assets.SQLite.Scripts.Repository
 {
-    public abstract class RepositoryBase<T>:SingleMono<RepositoryBase<T>> where T : ModelBase
+    public abstract class BaseRepository<T> where T : BaseModel
     {
         private SQLiteHelper sql;
-        private PropertyInfo[] propertys;//属性信息
-        private string[] propertyNames;//属性名
-        private string[] typeNames;//类型名
-        private string[] columns;//数据库字段名
-        private string table;//表名
-        private string primaryKey;//主键名
+        private readonly PropertyInfo[] propertys;//属性信息
+        private readonly string[] propertyNames;//属性名,数据库字段名(一致)
+        private readonly string[] columnTypes;//数据库字段名类型
+        private readonly string table;//表名
+        private readonly string primaryKey;//主键名
         private int primaryIndex;//主键所对应的index
 
-        void Awake()
+        protected BaseRepository()
         {
-            table = typeof (T).Name;
-            propertys = typeof (T).GetProperties();
+            table = typeof(T).Name;
+            propertys = typeof(T).GetProperties();
             propertyNames = getPropertyNames(propertys);
-            typeNames = getTypeNames(propertys);
-            columns = getColumns(typeNames);
+            var typeNames = getTypeNames(propertys);
+            columnTypes = getColumnTypes(typeNames);
             primaryKey = getPrimaryKey();
             createTable();//初始化就创建表
         }
@@ -37,7 +36,16 @@ namespace Assets.SQLite.Scripts.Repository
         private void createTable()
         {
             //创建名为User的数据表
-            sql.CreateTable(table, propertyNames, columns);
+            sql=new SQLiteHelper();
+            try
+            {
+                sql.CreateTable(table, propertyNames, columnTypes);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+            }
+            sql.CloseConnection();            
         }
 
         /// <summary>
@@ -94,18 +102,21 @@ namespace Assets.SQLite.Scripts.Repository
         /// 得到数据库字段名
         /// </summary>
         /// <returns></returns>
-        private string[] getColumns(string[] names)
+        private string[] getColumnTypes(string[] names)
         {
             string[] columnTemps = new string[names.Length];
             for (int i = 0; i < names.Length; i++)
             {
-                Debug.Log("属性名:"+names[i]);
+                //Debug.Log("属性名:"+names[i]);
                 switch (names[i])
                 {                
                     case "Int16":
                         columnTemps[i] = "INTEGER";
                         break;
                     case "Int32":
+                        columnTemps[i] = "INTEGER";
+                        break;
+                    case "Int64":
                         columnTemps[i] = "INTEGER";
                         break;
                     case "String":
@@ -185,7 +196,28 @@ namespace Assets.SQLite.Scripts.Repository
         public void DeleteByPrimaryKey(object value)
         {
             sql = new SQLiteHelper();
-            sql.DeleteValuesAND(table, new string[] { columns[primaryIndex] }, new string[] { "=" }, new string[] { string.Format("'{0}'", value) });
+            try
+            {
+                sql.DeleteValuesAND(table, new string[] { propertyNames[primaryIndex] }, new string[] { "=" }, new string[] { string.Format("'{0}'", value) });
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+            }          
+            sql.CloseConnection();
+        }
+
+        public void DeleteAll()
+        {
+            sql=new SQLiteHelper();
+            try
+            {
+                sql.ExecuteQuery("DELETE FROM " + table);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+            }                  
             sql.CloseConnection();
         }
 
@@ -193,7 +225,7 @@ namespace Assets.SQLite.Scripts.Repository
         /// 根据id更新用户信息
         /// </summary>
         /// <param name="model"></param>
-        public void UpdateInfoByPrimaryKey(T model)         
+        public void UpdateByPrimaryKey(T model)         
         {
             sql = new SQLiteHelper();
             string[] values = new string[propertys.Length];
@@ -201,7 +233,7 @@ namespace Assets.SQLite.Scripts.Repository
             {
                 values[i] = "'" + propertys[i].GetValue(model, null) + "'";
             }
-            sql.UpdateValues(table, columns, values, primaryKey, getPrimaryKeyValue(model));
+            sql.UpdateValues(table, propertyNames, values, primaryKey, getPrimaryKeyValue(model));
             sql.CloseConnection();
         }
 
@@ -212,7 +244,7 @@ namespace Assets.SQLite.Scripts.Repository
         /// <returns></returns>
         private string getPrimaryKeyValue(T model)
         {
-            return (string)propertys[primaryIndex].GetValue(model, null);
+            return "'"+Convert.ToString(propertys[primaryIndex].GetValue(model, null))+"'";
         }
 
         /// <summary>
@@ -220,12 +252,12 @@ namespace Assets.SQLite.Scripts.Repository
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Dictionary<string,object> SelectByPrimaryKeyValue(object value)
+        public Dictionary<string,object> SelectByPrimaryKey(object value)
         {          
             Dictionary<string,object>map=new Dictionary<string, object>();
             sql = new SQLiteHelper();
             SqliteDataReader reader = sql.ReadTable(table,
-               columns,new[] { primaryKey }, new[] { "=" }, new[] { value.ToString() });
+               propertyNames,new[] { primaryKey }, new[] { "=" }, new[] { value.ToString() });
             while (reader.Read())
             {
                 for (int i = 0; i < propertyNames.Length; i++)
@@ -235,6 +267,6 @@ namespace Assets.SQLite.Scripts.Repository
             }
             sql.CloseConnection();
             return map;
-        }       
+        }             
     }
 }

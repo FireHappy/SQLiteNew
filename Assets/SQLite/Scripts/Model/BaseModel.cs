@@ -1,6 +1,6 @@
 ﻿namespace Assets.SQLite.Scripts.Model
 {
-    public class ModelBase  
+    public class BaseModel  
     {
          
     }

@@ -1,15 +1,50 @@
 ﻿using System.Collections.Generic;
+using Assets.SQLite.Scripts.Config;
 using Assets.SQLite.Scripts.Model;
+using Assets.SQLite.Scripts.Repository;
+using Assets.SQLite.Scripts.Singleton;
+using UnityEngine;
 
 namespace Assets.SQLite.Scripts.Manager
 {
-    public interface SQLiteManager<T> where T : ModelBase
-    {        
-        void InsertList(List<T> modelList);
-        void Insert(T model);
-        void DeleteById(int id);
-        void Update(T model);
-        T SelectById(int id);
-        List<T> SelectByIds(List<int> ids);
+    /// <summary>
+    /// SQLite管理类
+    /// </summary>
+    public class SQLiteManager:SingleMono<SQLiteManager>
+    {
+
+        private readonly Dictionary<string,object>repositories=new Dictionary<string, object>();
+
+
+        /// <summary>
+        /// 初始化配置文件
+        /// </summary>
+        private void InitConfig()
+        {
+            DBConfig.PC_CONNECT_STRING = "data source=" + Application.dataPath + "/zps_db.sqlite";
+            DBConfig.ANDROID_CONNECT_STRING = "URI=file:" + Application.persistentDataPath + "/zps_db.sqlite";
+            DBConfig.IOS_CONNECT_STRING = "data source=" + Application.persistentDataPath + "/zps_db.sqlite";
+        }
+
+        void Awake()    
+        {
+            InitConfig();
+            AddResository("User",new UserRepository());            
+        }
+
+        public void AddResository(string key, object value)
+        {
+            repositories.Add(key,value);
+        }
+
+        public BaseRepository<T> GetRepository<T>() where T : BaseModel
+        {
+            object respoitory = null;
+            if (repositories.TryGetValue(typeof (T).Name, out respoitory))
+            {
+                return (BaseRepository<T>) respoitory;
+            }
+            return default(BaseRepository<T>);
+        }
     }
 }

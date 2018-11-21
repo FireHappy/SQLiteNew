@@ -3,7 +3,7 @@ using Assets.SQLite.Scripts.Config;
 using Mono.Data.Sqlite;
 using UnityEngine;
 
-namespace Assets.SQLite.Scripts
+namespace Assets.SQLite.Scripts.Base
 {
     /// <summary>
     /// 功能：Sqlite嵌入式数据库的操作类
@@ -143,14 +143,7 @@ namespace Assets.SQLite.Scripts
         /// <param name="tableName">数据表名称</param>
         /// <param name="values">插入的数值</param>
         public SqliteDataReader InsertValues(string tableName, string[] values)
-        {
-            //获取数据表中字段数目
-            int fieldCount = ReadFullTable(tableName).FieldCount;
-            //当插入的数据长度不等于字段数目时引发异常
-            if (values.Length != fieldCount)
-            {
-                throw new SqliteException("values.Length!=fieldCount");
-            }
+        {           
             string queryString = "INSERT INTO " + tableName + " VALUES (" + values[0];
             for (int i = 1; i < values.Length; i++)
             {
