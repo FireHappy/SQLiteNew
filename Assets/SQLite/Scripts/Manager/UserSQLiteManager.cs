@@ -106,9 +106,9 @@ namespace Assets.SQLite.Scripts.Manager
             while (reader.Read())
             {
                 info.Id = reader.GetInt32(reader.GetOrdinal("UserId"));
-                info.UserName = reader.GetString(reader.GetOrdinal("UserName"));
-                info.PassWord = reader.GetString(reader.GetOrdinal("PassWord"));
-                info.VoiceState = reader.GetString(reader.GetOrdinal("VoiceState"));
+                //info.UserName = reader.GetString(reader.GetOrdinal("UserName"));
+                //info.PassWord = reader.GetString(reader.GetOrdinal("PassWord"));
+                //info.VoiceState = reader.GetString(reader.GetOrdinal("VoiceState"));
                 info.EffectVoiceState = reader.GetString(reader.GetOrdinal("EffectVoiceState"));
                 info.InfoState = reader.GetString(reader.GetOrdinal("InfoState"));
             }

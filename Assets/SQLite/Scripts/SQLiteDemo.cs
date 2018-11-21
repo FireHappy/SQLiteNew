@@ -28,9 +28,9 @@ namespace Assets.SQLite.Scripts
                     Id = i+1,
                     EffectVoiceState = "test",
                     InfoState = "test",
-                    PassWord = "test",
-                    UserName = "test",
-                    VoiceState = "test"
+                    //PassWord = "test",
+                    //UserName = "test",
+                    //VoiceState = "test"
                 };
                 userInfos.Add(user);
             }
@@ -45,9 +45,9 @@ namespace Assets.SQLite.Scripts
                 Id = 1,
                 EffectVoiceState = "test",
                 InfoState = "test",
-                PassWord = "test",
-                UserName = "test",
-                VoiceState = "test"
+                //PassWord = "test",
+                //UserName = "test",
+                //VoiceState = "test"
             };
             UserSQLiteManager.Instance().Insert(user);             
         }
@@ -64,9 +64,9 @@ namespace Assets.SQLite.Scripts
                 Id = 1,
                 EffectVoiceState = "testUpdate",
                 InfoState = "testUpdate",
-                PassWord = "testUpdate",
-                UserName = "testUpdate",
-                VoiceState = "testUpdate"
+                //PassWord = "testUpdate",
+                //UserName = "testUpdate",
+                //VoiceState = "testUpdate"
             };
             UserSQLiteManager.Instance().Update(user);
         }
