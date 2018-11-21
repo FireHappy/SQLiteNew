@@ -34,7 +34,7 @@ namespace Assets.SQLite.Scripts.Manager
         void Awake()    
         {
             InitConfig();
-            AddResository("User",new UserRepository());            
+            AddResository(typeof(User).Name,new UserRepository());            
         }
 
         public void AddResository(string key, object value)
