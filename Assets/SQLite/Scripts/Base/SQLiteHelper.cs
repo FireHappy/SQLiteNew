@@ -143,7 +143,8 @@ namespace Assets.SQLite.Scripts.Base
         /// <param name="tableName">数据表名称</param>
         /// <param name="values">插入的数值</param>
         public SqliteDataReader InsertValues(string tableName, string[] values)
-        {           
+        {
+           
             string queryString = "INSERT INTO " + tableName + " VALUES (" + values[0];
             for (int i = 1; i < values.Length; i++)
             {
@@ -262,7 +263,7 @@ namespace Assets.SQLite.Scripts.Base
                 queryString += ", " + items[i];
             }
             queryString += " FROM " + tableName + " WHERE " + colNames[0] + " " + operations[0] + " " + colValues[0];
-            for (int i = 0; i < colNames.Length; i++)
+            for (int i = 1; i < colNames.Length; i++)
             {
                 queryString += " AND " + colNames[i] + " " + operations[i] + " " + colValues[0] + " ";
             }

@@ -35,11 +35,13 @@ namespace Assets.SQLite.Scripts.Repository
         /// </summary>
         private void createTable()
         {
+            string[] createColumns = (string[]) columnTypes.Clone();
+            createColumns[primaryIndex] +=" PRIMARY KEY";
             //创建名为User的数据表
             sql=new SQLiteHelper();
             try
             {
-                sql.CreateTable(table, propertyNames, columnTypes);
+                sql.CreateTable(table, propertyNames, createColumns);
             }
             catch (Exception e)
             {
@@ -99,7 +101,7 @@ namespace Assets.SQLite.Scripts.Repository
         }
 
         /// <summary>
-        /// 得到数据库字段名
+        /// 得到数据库字段对应的类型
         /// </summary>
         /// <returns></returns>
         private string[] getColumnTypes(string[] names)
@@ -119,15 +121,15 @@ namespace Assets.SQLite.Scripts.Repository
                     case "Int64":
                         columnTemps[i] = "INTEGER";
                         break;
+                    case "Byte":
+                        columnTemps[i] = "INTEGER";
+                        break;
                     case "String":
                         columnTemps[i] = "TEXT";
                         break;                   
                     case "Single":
                         columnTemps[i] = "REAL";
-                        break;
-                    case "Byte":
-                        columnTemps[i] = "INTEGER";
-                        break;
+                        break;  
                     case "Double":
                         columnTemps[i] = "REAL";
                         break;                   
@@ -267,6 +269,31 @@ namespace Assets.SQLite.Scripts.Repository
             }
             sql.CloseConnection();
             return map;
-        }             
+        }
+
+        /// <summary>
+        /// 通过指定的属性,查询
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="columnName"></param>
+        /// <returns></returns>
+        public List<Dictionary<string, object>> SelectListByColumn(object value, string columnName)
+        {
+            List<Dictionary<string,object>>mapList=new List<Dictionary<string, object>>();
+            sql = new SQLiteHelper();
+            SqliteDataReader reader = sql.ReadTable(table,
+               propertyNames, new[] { columnName }, new[] { "=" }, new[] { value.ToString() });
+            while (reader.Read())
+            {
+                Dictionary<string, object> map = new Dictionary<string, object>();
+                for (int i = 0; i < propertyNames.Length; i++)
+                {
+                    map.Add(propertyNames[i], reader.GetOrdinal(propertyNames[i]));
+                }
+                mapList.Add(map);
+            }
+            sql.CloseConnection();
+            return mapList;
+        }
     }
 }

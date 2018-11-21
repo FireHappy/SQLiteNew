@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Assets.SQLite.Scripts.Config;
 using Assets.SQLite.Scripts.Model;
 using Assets.SQLite.Scripts.Repository;
@@ -21,7 +22,11 @@ namespace Assets.SQLite.Scripts.Manager
         /// </summary>
         private void InitConfig()
         {
-            DBConfig.PC_CONNECT_STRING = "data source=" + Application.dataPath + "/zps_db.sqlite";
+            if (!Directory.Exists(Application.streamingAssetsPath))
+            {
+                Directory.CreateDirectory(Application.streamingAssetsPath);
+            }
+            DBConfig.PC_CONNECT_STRING = "data source=" + Application.streamingAssetsPath + "/zps_db.sqlite";
             DBConfig.ANDROID_CONNECT_STRING = "URI=file:" + Application.persistentDataPath + "/zps_db.sqlite";
             DBConfig.IOS_CONNECT_STRING = "data source=" + Application.persistentDataPath + "/zps_db.sqlite";
         }

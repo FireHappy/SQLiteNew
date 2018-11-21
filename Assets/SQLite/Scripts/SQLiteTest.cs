@@ -25,7 +25,8 @@ namespace Assets.SQLite.Scripts
             //InsertList();
             //UpdateTest();
             //DeleteTest();
-            SelectTest();            
+            //SelectTest(); 
+            SelectListTest();
         }
 
         private void DeleteAll()
@@ -83,6 +84,12 @@ namespace Assets.SQLite.Scripts
         private void SelectTest()
         {
             Dictionary<string, object> user = repository.SelectByPrimaryKey(2);            
+        }
+
+        private void SelectListTest()
+        {
+            List<Dictionary<string, object>> userList = repository.SelectListByColumn("10", "Age");
+            Debug.Log("user.count:"+userList.Count);
         }
     }
 }
