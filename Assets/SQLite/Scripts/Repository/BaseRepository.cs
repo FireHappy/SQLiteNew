@@ -259,12 +259,26 @@ namespace Assets.SQLite.Scripts.Repository
             Dictionary<string,object>map=new Dictionary<string, object>();
             sql = new SQLiteHelper();
             SqliteDataReader reader = sql.ReadTable(table,
-               propertyNames,new[] { primaryKey }, new[] { "=" }, new[] { value.ToString() });
+               propertyNames, new[] { primaryKey }, new[] { "=" }, new[] { "'" + value + "'" });
             while (reader.Read())
             {
                 for (int i = 0; i < propertyNames.Length; i++)
                 {
-                    map.Add(propertyNames[i],reader.GetOrdinal(propertyNames[i]));
+                    switch (columnTypes[i])
+                    {
+                        case "TEXT":
+                            map.Add(propertyNames[i], reader.GetString(i));
+                            break;
+                        case "INTEGER":
+                            map.Add(propertyNames[i], reader.GetInt32(i));
+                            break;
+                        case "REAL":
+                            map.Add(propertyNames[i], reader.GetFloat(i));
+                            break;
+                        default:
+                            Debug.LogWarning("Respository未加入该类型的转换:" + columnTypes[i]);
+                            break;
+                    }       
                 }              
             }
             sql.CloseConnection();
@@ -282,13 +296,65 @@ namespace Assets.SQLite.Scripts.Repository
             List<Dictionary<string,object>>mapList=new List<Dictionary<string, object>>();
             sql = new SQLiteHelper();
             SqliteDataReader reader = sql.ReadTable(table,
-               propertyNames, new[] { columnName }, new[] { "=" }, new[] { value.ToString() });
+               propertyNames, new[] { columnName }, new[] { "=" }, new[] { "'"+value+"'" });
             while (reader.Read())
             {
                 Dictionary<string, object> map = new Dictionary<string, object>();
                 for (int i = 0; i < propertyNames.Length; i++)
                 {
-                    map.Add(propertyNames[i], reader.GetOrdinal(propertyNames[i]));
+                    switch (columnTypes[i])
+                    {
+                        case "TEXT":
+                            map.Add(propertyNames[i], reader.GetString(i));
+                            break;
+                        case "INTEGER":
+                            map.Add(propertyNames[i], reader.GetInt32(i));
+                            break;
+                        case "REAL":
+                            map.Add(propertyNames[i], reader.GetFloat(i));
+                            break;                      
+                        default:
+                            Debug.LogWarning("Respository未加入该类型的转换:" + columnTypes[i]);
+                            break;
+                    }                   
+                }
+                mapList.Add(map);
+            }
+            sql.CloseConnection();
+            return mapList;
+        }
+
+        /// <summary>
+        /// 通过指定的属性,查询
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="columnName"></param>
+        /// <returns></returns>
+        public List<Dictionary<string, object>> SelectAll()
+        {
+            List<Dictionary<string, object>> mapList = new List<Dictionary<string, object>>();
+            sql = new SQLiteHelper();
+            SqliteDataReader reader = sql.ReadFullTable(table);
+            while (reader.Read())
+            {
+                Dictionary<string, object> map = new Dictionary<string, object>();
+                for (int i = 0; i < propertyNames.Length; i++)
+                {
+                   switch (columnTypes[i])
+                    {
+                        case "TEXT":
+                            map.Add(propertyNames[i], reader.GetString(i));
+                            break;
+                        case "INTEGER":
+                            map.Add(propertyNames[i], reader.GetInt32(i));
+                            break;
+                        case "REAL":
+                            map.Add(propertyNames[i], reader.GetFloat(i));
+                            break;                      
+                        default:
+                            Debug.LogWarning("Respository未加入该类型的转换:" + columnTypes[i]);
+                            break;
+                    }    
                 }
                 mapList.Add(map);
             }

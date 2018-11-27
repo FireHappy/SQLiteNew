@@ -15,7 +15,7 @@ namespace Assets.SQLite.Scripts
 
         private void Awake()
         {
-            repository = SQLiteManager.Instance.GetRepository<User>();
+            repository = SQLiteManager.Instance.GetRepository<User>();            
         }
 
         private void Start()
@@ -27,6 +27,7 @@ namespace Assets.SQLite.Scripts
             //DeleteTest();
             //SelectTest(); 
             SelectListTest();
+            //SelectAllTest();
         }
 
         private void DeleteAll()
@@ -88,8 +89,14 @@ namespace Assets.SQLite.Scripts
 
         private void SelectListTest()
         {
-            List<Dictionary<string, object>> userList = repository.SelectListByColumn("10", "Age");
+            List<Dictionary<string, object>> userList = repository.SelectListByColumn("大帅哥", "UserName");
             Debug.Log("user.count:"+userList.Count);
+        }
+
+        private void SelectAllTest()
+        {
+            List<Dictionary<string, object>> userList = repository.SelectAll();
+            Debug.Log("user.count:" + userList.Count);
         }
     }
 }
